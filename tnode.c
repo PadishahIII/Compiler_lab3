@@ -852,14 +852,14 @@ void print_Operand(Operand op)
 }
 void print_Codes(InterCode codes)
 {
-    printf("\n*****************************\n");
+    // printf("\n*****************************\n");
     InterCode temp = codes;
     while (temp)
     {
         print_Code(temp);
         temp = temp->next;
     }
-    printf("***********************************\n");
+    // printf("***********************************\n");
 }
 InterCode add_Codes(int num, ...)
 {
@@ -1568,7 +1568,7 @@ int main(int argc, char **argv)
     CodesTail = CodesHead;
 
     yyrestart(file);
-    yydebug = 1;
+    // yydebug = 1;
     yyparse();
     fclose(file);
 
@@ -1578,7 +1578,7 @@ int main(int argc, char **argv)
     {
         if (IsChild[i] != 1) //&& !strcmp(nodeList[i]->type, "Program")
         {
-            Preorder(nodeList[i], 0);
+            // Preorder(nodeList[i], 0);
             InterCode codes = translate_Program(nodeList[i]);
             print_Codes(codes);
         }
