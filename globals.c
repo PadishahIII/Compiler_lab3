@@ -19,6 +19,8 @@ struct_ *structhead, *structtail;
 // int structnum;
 fieldlist fieldtail;
 struct_ *currentstruct;
+char **varname[MAX_NUM];
+int varnameno;
 
 /******中间代码生成***********/
 InterCode CodesHead, CodesTail; //双链表收尾

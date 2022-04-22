@@ -123,6 +123,16 @@ void newvar(int num, ...)
 
     vartail->next = res;
     vartail = res;
+
+    //清空varname[]
+    // for (int i = 1; i < varnameno; i++)
+    //{
+    //    var *res = (var *)malloc(sizeof(var));
+    //    res->type = res->name = varname[i];
+    //    vartail->next = res;
+    //    vartail = res;
+    //}
+    // varnameno = 0;
 }
 int findvar(tnode val)
 {
@@ -1031,26 +1041,21 @@ InterCode translate_Stmt(tnode Stmt)
             InterCode code1 = translate_Cond(ExpChild, lable1, lable2);
             add_Codes(1, new_lable_Code(lable1));
             InterCode code2 = translate_Stmt(StmtChild);
-            add_Codes(1, new_lable_Code(lable2));
+
             if (StmtChild->next == NULL) //没有ELSE
             {
-                return code1;
+                add_Codes(1, new_lable_Code(lable2));
             }
             else
             {
                 tnode StmtChild2 = StmtChild->next->next;
-                Operand lable1 = new_lable();
-                Operand lable2 = new_lable();
                 Operand lable3 = new_lable();
-                InterCode code1 = translate_Cond(ExpChild, lable1, lable2);
-                add_Codes(1, new_lable_Code(lable1));
-                InterCode code2 = translate_Stmt(StmtChild);
                 add_Codes(1, new_goto_Code(lable3));
                 add_Codes(1, new_lable_Code(lable2));
                 InterCode code3 = translate_Stmt(StmtChild2);
                 add_Codes(1, new_lable_Code(lable3));
-                return code1;
             }
+            return code1;
         }
         else if (!strcmp(Stmt->leftchild->type, "WHILE"))
         {
@@ -1143,7 +1148,7 @@ InterCode translate_Exp(tnode Exp, Operand place)
                 char *varname = getvarnamestr(Exp1->leftchild->content);
                 if (varname == NULL)
                 {
-                    printf("Error- in translate_Exp() 1\n");
+                    printf("Error- in translate_Exp() %d\n", Exp->lineno);
                     return NULL;
                 }
                 Operand vari = new_Variable(varname);
@@ -1245,7 +1250,7 @@ InterCode translate_Exp(tnode Exp, Operand place)
     else if (Exp->leftchild != NULL && !strcmp(Exp->leftchild->type, "MINUS"))
     {
         Operand t1 = new_tempvar();
-        InterCode code1 = translate_Exp(Exp1, t1);
+        InterCode code1 = translate_Exp(Exp1->next, t1);
         InterCode code2 = new_Code();
         code2->kind = _SUB;
         code2->operands.binop.result = place;
@@ -1375,7 +1380,7 @@ InterCode translate_Cond(tnode Exp, Operand lable_true, Operand lable_false)
             Operand t1;
             Operand t2;
             // Exp->ID
-            if (!strcmp(Exp->leftchild->leftchild->type, "ID") && Exp->leftchild->next == NULL)
+            if (!strcmp(Exp->leftchild->leftchild->type, "ID") && Exp->leftchild->leftchild->next == NULL)
                 t1 = new_Variable(getvarnamestr(Exp->leftchild->leftchild->content));
             else
                 t1 = new_tempvar();
@@ -1469,8 +1474,14 @@ char *getvarnamestr(char *name)
     int num = getvarstr(name, pos);
     if (num < 0)
     {
-        //该变量未定义
-        return NULL;
+        //该变量未定义TODO:
+        var *res = (var *)malloc(sizeof(var));
+        res->instruct = 0;
+        res->structno = -1;
+        res->type = res->name = name;
+        vartail->next = res;
+        vartail = res;
+        return getvarnamestr(name);
     }
     else
     {
@@ -1520,6 +1531,7 @@ int main(int argc, char **argv)
     structtail = structhead;
     rnum = 0;
     // structnum = 0;
+    varnameno = 0;
 
     //中间代码生成部分
     tempvarnum = 0;
@@ -1556,7 +1568,7 @@ int main(int argc, char **argv)
     CodesTail = CodesHead;
 
     yyrestart(file);
-    // yydebug = 1;
+    yydebug = 1;
     yyparse();
     fclose(file);
 

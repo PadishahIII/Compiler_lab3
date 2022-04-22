@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #define LISTSIZE 1000
+#define MAX_NUM 100
 
 extern int yylineno;
 extern char *yytext;
@@ -63,6 +64,9 @@ typedef struct var_
     struct var_ *next;
 } var;
 extern var *varhead, *vartail;
+
+extern char **varname[MAX_NUM];
+extern int varnameno;
 
 void newvar(int num, ...);           //建立变量符号表项
 int findvar(tnode val);              //检查变量是否已定义
@@ -220,7 +224,6 @@ typedef struct _ArgListStru
 
 extern InterCode CodesHead, CodesTail; //双链表首尾
 //临时变量和标签
-#define MAX_NUM 100
 extern int tempvar[MAX_NUM];
 extern int tempvarnum;         //下一个可用的临时变量下标
 extern var variables[MAX_NUM]; //变量与v1 v2 的映射

@@ -46,7 +46,9 @@ ExtDef: Specifier ExtDecList SEMI {
 }
     |error SEMI
     ;
-ExtDecList: VarDec {$$=newTree("ExtDecList",nodeNum,1,$1);nodeList[nodeNum++]=$$;}
+ExtDecList: VarDec {
+    $$=newTree("ExtDecList",nodeNum,1,$1);nodeList[nodeNum++]=$$;
+}
     |VarDec COMMA ExtDecList {$$=newTree("ExtDecList",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;}
     ;
 
@@ -170,7 +172,7 @@ Def: Specifier DecList SEMI {
 }
     |error SEMI
     ;
-DecList:Dec {$$=newTree("DecList",nodeNum,1,$1);nodeList[nodeNum++]=$$;}
+DecList:Dec {$$=newTree("DecList",nodeNum,1,$1);nodeList[nodeNum++]=$$;varname[varnameno++]=$1->content;}
     |Dec COMMA DecList {$$=newTree("DecList",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;}
     ;
 Dec: VarDec {$$=newTree("Dec",nodeNum,1,$1);nodeList[nodeNum++]=$$;}
@@ -181,17 +183,17 @@ Dec: VarDec {$$=newTree("Dec",nodeNum,1,$1);nodeList[nodeNum++]=$$;}
 Exp: Exp ASSIGNOP Exp {
         $$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;
         //Error5
-        if($1->numtype==NULL||$3->numtype==NULL){
-            printf("Error0\n");
-            return;
-        }
-        if(strcmp($1->numtype,$3->numtype)){
-            printf("Error type 5 at line %d:type mismatch(%s %s %s).\n",yylineno,$1->numtype,$2->content,$3->numtype);
-        }
-        //Error6
-        if(!checkleft($1)){
-            printf("Error type 6 at line %d:The left-hand side of the assignment must be a variable.\n",yylineno);
-        }
+        //if($1->numtype==NULL||$3->numtype==NULL){
+            //printf("Error0\n");
+            //return;
+        //}
+        //if(strcmp($1->numtype,$3->numtype)){
+            //printf("Error type 5 at line %d:type mismatch(%s %s %s).\n",yylineno,$1->numtype,$2->content,$3->numtype);
+        //}
+        ////Error6
+        //if(!checkleft($1)){
+            //printf("Error type 6 at line %d:The left-hand side of the assignment must be a variable.\n",yylineno);
+        //}
     }
     |Exp AND Exp {$$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;$$->numtype = $1->numtype;}
     |Exp OR Exp {$$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;$$->numtype = $1->numtype;}
@@ -205,20 +207,20 @@ Exp: Exp ASSIGNOP Exp {
     |Exp MINUS Exp {
         $$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;$$->numtype = $1->numtype;
         //Error7
-        if(strcmp($1->numtype,$3->numtype))
-            printf("Error type 7 at line %d:Type mismatched for operands.\n",yylineno);
+        //if(strcmp($1->numtype,$3->numtype))
+        //    printf("Error type 7 at line %d:Type mismatched for operands.\n",yylineno);
     }
     |Exp STAR Exp {
         $$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;$$->numtype = $1->numtype;
         //Error7
-        if(strcmp($1->numtype,$3->numtype))
-            printf("Error type 7 at line %d:Type mismatched for operands.\n",yylineno);
+        //if(strcmp($1->numtype,$3->numtype))
+        //    printf("Error type 7 at line %d:Type mismatched for operands.\n",yylineno);
     }
     |Exp DIV Exp {
         $$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;$$->numtype = $1->numtype;
         //Error7
-        if(strcmp($1->numtype,$3->numtype))
-            printf("Error type 7 at line %d:Type mismatched for operands.\n",yylineno);
+        //if(strcmp($1->numtype,$3->numtype))
+        //    printf("Error type 7 at line %d:Type mismatched for operands.\n",yylineno);
     }
     |LP Exp RP {$$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;$$->numtype = $2->numtype;}
     |MINUS Exp {$$=newTree("Exp",nodeNum,2,$1,$2);nodeList[nodeNum++]=$$;$$->numtype = $2->numtype;}
@@ -238,6 +240,7 @@ Exp: Exp ASSIGNOP Exp {
                 printf("%s,",va_type[i]);
             printf("%s)\n",va_type[va_num-1]);
         }
+       // $$->numtype = getfunc($1->content)->rtype;
     }
     |ID LP RP {
         $$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;
