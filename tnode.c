@@ -117,6 +117,7 @@ void newvar(int num, ...)
         res->structno = -1; // TODO:
     }
     temp = va_arg(valist, tnode);
+    tnode specifier = temp;
     res->type = temp->content;
     temp = va_arg(valist, tnode);
     res->name = temp->content;
@@ -125,14 +126,34 @@ void newvar(int num, ...)
     vartail = res;
 
     //清空varname[]
-    // for (int i = 1; i < varnameno; i++)
-    //{
-    //    var *res = (var *)malloc(sizeof(var));
-    //    res->type = res->name = varname[i];
-    //    vartail->next = res;
-    //    vartail = res;
-    //}
-    // varnameno = 0;
+    for (int i = 0; i < varnameno; i++)
+    {
+        if (!varname[i] || findvarstr(varname[i]))
+            continue;
+        var *res = (var *)malloc(sizeof(var));
+        res->type = specifier->content;
+        res->name = varname[i];
+        vartail->next = res;
+        vartail = res;
+    }
+    varnameno = 0;
+}
+void getVaris(tnode DecList)
+{
+    if (DecList != NULL)
+    {
+        if (!strcmp(DecList->type, "VarDec"))
+        {
+            varname[varnameno++] = DecList->content;
+            return;
+        }
+        tnode child = DecList->leftchild;
+        while (child != NULL)
+        {
+            getVaris(child);
+            child = child->next;
+        }
+    }
 }
 int findvar(tnode val)
 {
@@ -189,7 +210,19 @@ int getvarstr(char *name, var *pos)
     } // while
     return -1;
 }
-
+int findvarstr(char *name)
+{
+    var *temp = varhead->next;
+    while (temp != NULL)
+    {
+        if (!strcmp(temp->name, name))
+        {
+            return 1;
+        } // if(!strcmp)
+        temp = temp->next;
+    } // while
+    return 0;
+}
 char *typevar(tnode val)
 {
     var *temp = varhead->next;
@@ -263,10 +296,10 @@ void newfunc(int num, ...)
                 printf("Error type 8 at line %d:Function return type error(%s->%s)\n", yylineno, functail->rtype, rtype[i]);
             }
         }
-        functail->tag = 1;
-        func *new = (func *)malloc(sizeof(func));
-        functail->next = new;
-        functail = new;
+        // functail->tag = 1;
+        // func *new = (func *)malloc(sizeof(func));
+        // functail->next = new;
+        // functail = new;
         break;
     case 2:
         temp = va_arg(valist, tnode);
@@ -274,6 +307,12 @@ void newfunc(int num, ...)
         temp = va_arg(valist, tnode);
         functail->va_num = 0;
         getdeftype(temp);
+        functail->rtype = "int"; //返回值类型
+        functail->type = "int";  // 语法单元的类型
+        functail->tag = 1;
+        func *new = (func *)malloc(sizeof(func));
+        functail->next = new;
+        functail = new;
         break;
     default:
         break;
@@ -1555,6 +1594,8 @@ int main(int argc, char **argv)
 
     functail->tag = 1;
     functail->name = write;
+    functail->type = typeInt;
+    functail->rtype = typeInt;
     functail->va_num = 1;
     (functail->va_type)[0] = typeInt;
     functail->instruct = 0;

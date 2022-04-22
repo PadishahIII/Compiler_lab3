@@ -1,0 +1,29 @@
+FUNCTION main :
+PARAM v0
+t1 := #2
+t2 := #3
+t0 := t1 + t2
+v1 := t0
+t3 := #0
+IF v1 > t3 GOTO lable0
+GOTO lable1
+LABLE lable0 :
+t4 := #1
+WRITE t4
+GOTO lable2
+LABLE lable1 :
+t5 := #0
+IF v1 < t5 GOTO lable3
+GOTO lable4
+LABLE lable3 :
+t7 := #1
+t6 := #0 - t7
+WRITE t6
+GOTO lable5
+LABLE lable4 :
+t8 := #0
+WRITE t8
+LABLE lable5 :
+LABLE lable2 :
+t9 := #0
+RETURN t9

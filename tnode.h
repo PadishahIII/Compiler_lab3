@@ -68,11 +68,13 @@ extern var *varhead, *vartail;
 extern char **varname[MAX_NUM];
 extern int varnameno;
 
-void newvar(int num, ...);           //建立变量符号表项
-int findvar(tnode val);              //检查变量是否已定义
+void newvar(int num, ...); //建立变量符号表项
+int findvar(tnode val);    //检查变量是否已定义
+int findvarstr(char *);
 int getvarstr(char *name, var *pos); //由变量名获取变量信息
 char *typevar(tnode val);            //查询变量类型
 int checkleft(tnode val);            //赋值号左边是否合法
+void getVaris(tnode);
 
 //函数符号表
 typedef struct func_

@@ -168,11 +168,12 @@ Def: Specifier DecList SEMI {
     else if($2->tag==4)
         newarray(2,$1,$2);
     else 
+        getVaris($2);
         newvar(2,$1,$2);
 }
     |error SEMI
     ;
-DecList:Dec {$$=newTree("DecList",nodeNum,1,$1);nodeList[nodeNum++]=$$;varname[varnameno++]=$1->content;}
+DecList:Dec {$$=newTree("DecList",nodeNum,1,$1);nodeList[nodeNum++]=$$;}
     |Dec COMMA DecList {$$=newTree("DecList",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;}
     ;
 Dec: VarDec {$$=newTree("Dec",nodeNum,1,$1);nodeList[nodeNum++]=$$;}
