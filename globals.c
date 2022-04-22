@@ -19,3 +19,11 @@ struct_ *structhead, *structtail;
 // int structnum;
 fieldlist fieldtail;
 struct_ *currentstruct;
+
+/******中间代码生成***********/
+InterCode CodesHead, CodesTail; //双链表收尾
+                                //临时变量和标签
+int tempvar[100];
+int tempvarnum; //下一个可用的临时变量下标
+int lables[100];
+int lablesnum;

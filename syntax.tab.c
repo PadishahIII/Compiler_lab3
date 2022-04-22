@@ -1333,34 +1333,34 @@ yyreduce:
 
   case 3: /* ExtDefList: %empty  */
 #line 34 "syntax.y"
-            {(yyval.type_tree)=newTree("ExtDefList",nodeNum,0,-1);nodeList[nodeNum++]=(yyval.type_tree);nodeList[nodeNum++]=(yyval.type_tree);}
+            {(yyval.type_tree)=newTree("ExtDefList",nodeNum,0,-1);nodeList[nodeNum++]=(yyval.type_tree);}
 #line 1338 "syntax.tab.c"
     break;
 
   case 4: /* ExtDefList: ExtDef ExtDefList  */
 #line 35 "syntax.y"
-                       {(yyval.type_tree)=newTree("ExtDefList",nodeNum,2,(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);nodeList[nodeNum++]=(yyval.type_tree);}
+                       {(yyval.type_tree)=newTree("ExtDefList",nodeNum,2,(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);}
 #line 1344 "syntax.tab.c"
     break;
 
   case 5: /* ExtDef: Specifier ExtDecList SEMI  */
 #line 37 "syntax.y"
                                   {
-    (yyval.type_tree)=newTree("ExtDef",nodeNum,3,(yyvsp[-2].type_tree),(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);nodeList[nodeNum++]=(yyval.type_tree);
+    (yyval.type_tree)=newTree("ExtDef",nodeNum,3,(yyvsp[-2].type_tree),(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);
 }
 #line 1352 "syntax.tab.c"
     break;
 
   case 6: /* ExtDef: Specifier SEMI  */
 #line 40 "syntax.y"
-                    {(yyval.type_tree)=newTree("ExtDef",nodeNum,2,(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);nodeList[nodeNum++]=(yyval.type_tree);}
+                    {(yyval.type_tree)=newTree("ExtDef",nodeNum,2,(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);}
 #line 1358 "syntax.tab.c"
     break;
 
   case 7: /* ExtDef: Specifier FunDec CompSt  */
 #line 41 "syntax.y"
                              {
-        (yyval.type_tree)=newTree("ExtDef",nodeNum,3,(yyvsp[-2].type_tree),(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);nodeList[nodeNum++]=(yyval.type_tree);
+        (yyval.type_tree)=newTree("ExtDef",nodeNum,3,(yyvsp[-2].type_tree),(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);
         //Error8
         newfunc(1,(yyvsp[-2].type_tree));
         //Error4 检查函数是否重复定义

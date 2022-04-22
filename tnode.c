@@ -587,6 +587,815 @@ char *checkmultifield(struct_ *structpos)
     return NULL;
 }
 
+/*************************中间代码生成*********************/
+void init_tempvar_lable()
+{
+    for (int i = 0; i < MAX_NUM; i++)
+    {
+        tempvar[i] = -1;
+        lables[i] = -1;
+    }
+}
+Operand new_tempvar()
+{
+    if (tempvarnum >= MAX_NUM)
+        return NULL;
+    Operand res = new_Operand();
+    res->kind = TEMPVAR;
+    res->operand.tempvar = tempvarnum; // TODO:
+    tempvar[tempvarnum++] = res;
+    return res;
+}
+Operand new_lable()
+{
+    if (lablesnum > MAX_NUM)
+        return NULL;
+    Operand res = new_Operand();
+    res->kind = LABLE;
+    res->operand.lable = lablesnum; // TODO:
+    lables[lablesnum++] = res;
+    return res;
+}
+Operand new_Operand()
+{
+    Operand res = (Operand)malloc(sizeof(OperandStru));
+    res->value = -10000; // TODO:
+    return res;
+}
+Operand new_Variable(char *name)
+{
+    Operand res = new_Operand();
+    res->kind = VARIABLE;
+    res->operand.name = name;
+    return res;
+}
+Operand new_Const(int value)
+{
+    Operand res = new_Operand();
+    res->kind = CONSTANT;
+    res->operand.value = value;
+    res->value = value;
+    return res;
+}
+InterCode new_Code()
+{
+    InterCode res = (InterCode)malloc(sizeof(InterCodeStru));
+    res->kind = _NULL;
+    res->prev = NULL;
+    res->next = NULL;
+    return res;
+}
+
+// lable声明
+InterCode new_lable_Code(Operand lable)
+{
+    InterCode res = new_Code();
+    res->kind = _LABLE;
+    res->operands.var = lable;
+    return res;
+}
+InterCode new_goto_Code(Operand lable)
+{
+    InterCode res = new_Code();
+    res->kind = _GOTO;
+    res->operands.jump.lable = lable;
+    return res;
+}
+InterCode new_assign_Code(Operand left, Operand right)
+{
+    left->value = right->value; // TODO:
+    InterCode res = new_Code();
+    res->kind = _ASSIGN;
+    res->operands.assign.left = left;
+    res->operands.assign.right = right;
+    return res;
+}
+void print_Code(InterCode code)
+{
+    if (code == NULL)
+    {
+        perror("Error0 in print_Code()\n");
+        return;
+    }
+    switch (code->kind)
+    {
+    case _NULL:
+        break;
+    case _LABLE:
+        printf("LABLE ");
+        print_Operand(code->operands.var);
+        printf(":");
+        break;
+    case _FUNCTION:
+        printf("FUNCTION ");
+        print_Operand(code->operands.var);
+        printf(":");
+        break;
+    case _ASSIGN:
+        print_Operand(code->operands.assign.left);
+        printf(" := ");
+        print_Operand(code->operands.assign.right);
+        break;
+    case _ADD:
+        print_Operand(code->operands.binop.result);
+        printf(" := ");
+        print_Operand(code->operands.binop.op1);
+        printf(" + ");
+        print_Operand(code->operands.binop.op2);
+        break;
+    case _SUB:
+        print_Operand(code->operands.binop.result);
+        printf(" := ");
+        print_Operand(code->operands.binop.op1);
+        printf(" - ");
+        print_Operand(code->operands.binop.op2);
+        break;
+    case _MUL:
+        print_Operand(code->operands.binop.result);
+        printf(" := ");
+        print_Operand(code->operands.binop.op1);
+        printf(" * ");
+        print_Operand(code->operands.binop.op2);
+        break;
+    case _DIV:
+        print_Operand(code->operands.binop.result);
+        printf(" := ");
+        print_Operand(code->operands.binop.op1);
+        printf(" / ");
+        print_Operand(code->operands.binop.op2);
+        break;
+    case _GOTO:
+        printf("GOTO ");
+        print_Operand(code->operands.jump.lable);
+        break;
+    case _IFGOTO:
+        printf("IF ");
+        print_Operand(code->operands.jump.op1);
+        printf(" %s ", code->operands.jump.relop);
+        print_Operand(code->operands.jump.op2);
+        printf(" GOTO ");
+        print_Operand(code->operands.jump.lable);
+        break;
+    case _RETURN:
+        printf("RETURN ");
+        print_Operand(code->operands.var);
+        break;
+    case _ARG:
+        printf("ARG ");
+        print_Operand(code->operands.var);
+        break;
+    case _CALL:
+        if (code->operands.assign.left == NULL)
+            printf("CALL ");
+        else
+        {
+            print_Operand(code->operands.assign.left);
+            printf(" := CALL ");
+        }
+        print_Operand(code->operands.assign.right);
+        break;
+    case _PARAM:
+        printf("PARAM ");
+        print_Operand(code->operands.var);
+        break;
+    case _READ:
+        printf("READ ");
+        print_Operand(code->operands.var);
+        break;
+    case _WRITE:
+        printf("WRITE ");
+        print_Operand(code->operands.var);
+        break;
+    default:
+        printf("Error1 in print_Code()\n");
+        break;
+    }
+    if (code->kind != NULL)
+        printf("\n");
+}
+void print_Operand(Operand op)
+{
+    if (op == NULL)
+    {
+        printf("Error0 in print_Operand()\n");
+        return;
+    }
+    switch (op->kind)
+    {
+    case VARIABLE:
+    case FUNC:
+        printf("%s", op->operand.name);
+        break;
+    // case VARIABLE:
+    //     printf("v%d", op->operand.tempvar);
+    case TEMPVAR:
+        printf("t%d", op->operand.tempvar);
+        break;
+    case LABLE:
+        printf("lable%d", op->operand.lable);
+        break;
+    case CONSTANT:
+        printf("#%d", op->operand.value);
+        break;
+    case ADDRESS:
+        printf("&%s", op->operand.name);
+        break;
+    case VALUE:
+        printf("*%s", op->operand.name);
+        break;
+    default:
+        printf("Error1 in print_Operand()\n");
+        break;
+    }
+}
+void print_Codes(InterCode codes)
+{
+    printf("\n*****************************\n");
+    InterCode temp = codes;
+    while (temp)
+    {
+        print_Code(temp);
+        temp = temp->next;
+    }
+    printf("***********************************\n");
+}
+InterCode add_Codes(int num, ...)
+{
+    va_list list;
+    va_start(list, num);
+    InterCode temp;
+    InterCode code = va_arg(list, InterCode);
+    CodesTail->next = code;
+    code->prev = CodesTail;
+    CodesTail = code;
+    for (int i = 1; i < num; i++)
+    {
+        temp = va_arg(list, InterCode);
+        CodesTail->next = temp;
+        temp->prev = CodesTail;
+        CodesTail = temp;
+    }
+    return code; //第一句
+}
+InterCode translate_Program(tnode Program)
+{
+    return translate_ExtDefList(Program->leftchild);
+}
+InterCode translate_ExtDefList(tnode ExtDefList)
+{
+    if (ExtDefList->leftchild != NULL && ExtDefList->leftchild->lineno != -1)
+    {
+        InterCode code1 = translate_ExtDef(ExtDefList->leftchild);
+        InterCode code2 = translate_ExtDefList(ExtDefList->leftchild->next);
+        // add_Codes(2, code1, code2);
+        return code1; // TODO:
+    }
+    return new_Code();
+}
+InterCode translate_ExtDef(tnode ExtDef)
+{
+    if (ExtDef->leftchild != NULL)
+    {
+        if (!strcmp(ExtDef->leftchild->next->type, "ExtDecList"))
+        {
+        }
+        else if (!strcmp(ExtDef->leftchild->next->type, "SEMI"))
+        {
+        }
+        else if (!strcmp(ExtDef->leftchild->next->type, "FunDec"))
+        {
+            InterCode code1 = translate_FunDec(ExtDef->leftchild->next);
+            InterCode code2 = translate_CompSt(ExtDef->leftchild->next->next);
+            // add_Codes(2, code1, code2);
+            return code1;
+        }
+    }
+    return new_Code();
+}
+//函数头的定义
+InterCode translate_FunDec(tnode FunDec)
+{
+    if (FunDec->leftchild != NULL)
+    {
+        Operand function = new_Variable(FunDec->leftchild->content);
+        InterCode code1 = new_Code();
+        code1->kind = _FUNCTION;
+        code1->operands.var = function;
+        add_Codes(1, code1);
+        if (!strcmp(FunDec->leftchild->next->next->type, "VarList"))
+        {
+            InterCode code2 = translate_VarList(FunDec->leftchild->next->next);
+        }
+        else if (!strcmp(FunDec->leftchild->next->next->type, "RP"))
+        {
+        }
+        return code1;
+    }
+    return new_Code();
+}
+InterCode translate_VarList(tnode VarList)
+{
+    if (VarList->leftchild != NULL)
+    {
+        if (VarList->leftchild->next != NULL)
+        {
+            InterCode code1 = translate_ParamDec(VarList->leftchild);
+            InterCode code2 = translate_VarList(VarList->leftchild->next->next);
+            return code1;
+        }
+        else
+        {
+            return translate_ParamDec(VarList->leftchild);
+        }
+    }
+    return new_Code();
+}
+InterCode translate_ParamDec(tnode ParamDec)
+{
+    if (ParamDec->leftchild != NULL)
+    {
+        // VarDec->ID
+        tnode VarDec = ParamDec->leftchild->next;
+        InterCode code1 = new_Code();
+        code1->kind = _PARAM;
+        code1->operands.var = new_Variable(VarDec->content);
+        // code1->operands.var = new_tempvar();
+        add_Codes(1, code1); //叶节点加入
+        return code1;
+    }
+    return new_Code();
+}
+
+//函数体
+InterCode translate_CompSt(tnode CompSt)
+{
+    if (CompSt->leftchild != NULL)
+    {
+        InterCode code1 = translate_DefList(CompSt->leftchild->next);
+        InterCode code2 = translate_StmtList(CompSt->leftchild->next->next);
+        return code1;
+    }
+    return new_Code();
+}
+InterCode translate_StmtList(tnode StmtList)
+{
+    if (StmtList->leftchild != NULL && StmtList->leftchild->lineno != -1)
+    {
+        InterCode code1 = translate_Stmt(StmtList->leftchild);
+        InterCode code2 = translate_StmtList(StmtList->leftchild->next);
+        return code1;
+    }
+    return new_Code();
+}
+
+//语句
+InterCode translate_Stmt(tnode Stmt)
+{
+    if (Stmt->leftchild != NULL)
+    {
+        if (!strcmp(Stmt->leftchild->type, "Exp"))
+        {
+            return translate_Exp(Stmt->leftchild, NULL);
+        }
+        else if (!strcmp(Stmt->leftchild->type, "CompSt"))
+        {
+            return translate_CompSt(Stmt->leftchild);
+        }
+        else if (!strcmp(Stmt->leftchild->type, "RETURN"))
+        {
+            Operand op = get_Operand(Stmt->leftchild->next);
+            if (op == NULL) //操作数没有声明过
+            {
+                Operand t1 = new_tempvar();
+                InterCode code1 = translate_Exp(Stmt->leftchild->next, t1);
+                InterCode code2 = new_Code();
+                code2->kind = _RETURN;
+                code2->operands.var = t1;
+                add_Codes(1, code2);
+                return code1;
+            }
+            else
+            {
+                InterCode code1 = translate_Exp(Stmt->leftchild->next, op);
+                InterCode code2 = new_Code();
+                code2->kind = _RETURN;
+                code2->operands.var = op;
+                add_Codes(1, code2);
+                return code1;
+            }
+        }
+        else if (!strcmp(Stmt->leftchild->type, "IF"))
+        {
+            tnode ExpChild = Stmt->leftchild->next->next;
+            tnode StmtChild = ExpChild->next->next;
+            Operand lable1 = new_lable();
+            Operand lable2 = new_lable();
+            InterCode code1 = translate_Cond(ExpChild, lable1, lable2);
+            add_Codes(1, new_lable_Code(lable1));
+            InterCode code2 = translate_Stmt(StmtChild);
+            add_Codes(1, new_lable_Code(lable2));
+            if (Stmt->next == NULL) //没有ELSE
+            {
+                return code1;
+            }
+            else
+            {
+                tnode StmtChild2 = StmtChild->next->next;
+                Operand lable1 = new_lable();
+                Operand lable2 = new_lable();
+                Operand lable3 = new_lable();
+                InterCode code1 = translate_Cond(ExpChild, lable1, lable2);
+                add_Codes(1, new_lable_Code(lable1));
+                InterCode code2 = translate_Stmt(StmtChild);
+                add_Codes(1, new_goto_Code(lable3));
+                add_Codes(1, new_lable_Code(lable2));
+                InterCode code3 = translate_Stmt(StmtChild2);
+                add_Codes(1, new_lable_Code(lable3));
+                return code1;
+            }
+        }
+        else if (!strcmp(Stmt->leftchild->type, "WHILE"))
+        {
+            tnode ExpChild = Stmt->leftchild->next->next;
+            tnode StmtChild = ExpChild->next->next;
+            Operand lable1 = new_lable();
+            Operand lable2 = new_lable();
+            Operand lable3 = new_lable();
+            add_Codes(1, new_lable_Code(lable1));
+            InterCode code1 = translate_Cond(ExpChild, lable1, lable2);
+            add_Codes(1, new_lable_Code(lable2));
+            InterCode code2 = translate_Stmt(StmtChild);
+            add_Codes(1, new_goto_Code(lable1));
+            add_Codes(1, new_lable_Code(lable3));
+            return code1;
+        }
+        return new_Code();
+    }
+}
+//变量声明
+InterCode translate_DefList(tnode DefList)
+{
+    if (DefList->leftchild != NULL && DefList->leftchild->lineno != -1)
+    {
+        InterCode code1 = translate_Def(DefList->leftchild);
+        InterCode code2 = translate_DefList(DefList->leftchild->next);
+        return code1;
+    }
+    return new_Code();
+}
+InterCode translate_Def(tnode Def)
+{
+    return translate_DecList(Def->leftchild->next);
+}
+InterCode translate_DecList(tnode DecList)
+{
+    tnode DecChild = DecList->leftchild;
+    if (DecChild != NULL)
+    {
+        if (DecChild->next != NULL)
+        {
+            InterCode code1 = translate_Dec(DecChild);
+            InterCode code2 = translate_DecList(DecChild->next->next);
+            return code1;
+        }
+        else
+        {
+            return translate_Dec(DecChild);
+        }
+    }
+    return new_Code();
+}
+InterCode translate_Dec(tnode Dec)
+{
+    tnode VarDecChild = Dec->leftchild;
+    if (VarDecChild->next != NULL)
+    {
+        // VarDec ASSIGNOP Exp
+        Operand vari = new_Variable(VarDecChild->content);
+        Operand t1 = new_tempvar();
+        InterCode code1 = translate_Exp(VarDecChild->next->next, t1);
+        InterCode code2 = new_assign_Code(vari, t1);
+        add_Codes(1, code2);
+    }
+    return new_Code();
+}
+
+//基本表达式
+InterCode translate_Exp(tnode Exp, Operand place)
+{
+    int isCond = 0; //是否为条件表达式
+    tnode Exp1 = Exp->leftchild;
+    tnode op = Exp->leftchild->next;
+    tnode Exp2 = NULL;
+    if (op != NULL)
+        Exp2 = op->next;
+    if (Exp->leftchild != NULL && !strcmp(Exp->leftchild->type, "Exp"))
+    {
+        if (!strcmp(op->type, "ASSIGNOP"))
+        {
+            // Exp1->ID
+            if (Exp1->leftchild->next == NULL && !strcmp(Exp1->leftchild->type, "ID"))
+            {
+                Operand vari = new_Variable(Exp1->content);
+                // Operand existOp = get_Operand(Exp2);
+                Operand t1 = new_tempvar();
+                InterCode code1 = translate_Exp(Exp2, t1);
+                add_Codes(1, new_assign_Code(vari, t1));
+                if (place == NULL)
+                {
+                    return code1;
+                }
+                else
+                {
+                    InterCode code3 = new_assign_Code(place, vari);
+                    add_Codes(1, code3);
+                    return code1;
+                }
+            }
+        }
+        else if (!strcmp(op->type, "MINUS"))
+        {
+            Operand t1 = new_tempvar();
+            Operand t2 = new_tempvar();
+            InterCode code1 = translate_Exp(Exp1, t1);
+            InterCode code2 = translate_Exp(Exp2, t2);
+            InterCode code3 = new_Code();
+            code3->kind = _SUB;
+            code3->operands.binop.result = place;
+            code3->operands.binop.op1 = t1;
+            code3->operands.binop.op2 = t2;
+            add_Codes(1, code3);
+            return code1;
+        }
+        else if (!strcmp(op->type, "PLUS"))
+        {
+            Operand t1 = new_tempvar();
+            Operand t2 = new_tempvar();
+            InterCode code1 = translate_Exp(Exp1, t1);
+            InterCode code2 = translate_Exp(Exp2, t2);
+            InterCode code3 = new_Code();
+            code3->kind = _ADD;
+            code3->operands.binop.result = place;
+            code3->operands.binop.op1 = t1;
+            code3->operands.binop.op2 = t2;
+            add_Codes(1, code3);
+            return code1;
+        }
+        else if (!strcmp(op->type, "STAR"))
+        {
+            Operand t1 = new_tempvar();
+            Operand t2 = new_tempvar();
+            InterCode code1 = translate_Exp(Exp1, t1);
+            InterCode code2 = translate_Exp(Exp2, t2);
+            InterCode code3 = new_Code();
+            code3->kind = _MUL;
+            code3->operands.binop.result = place;
+            code3->operands.binop.op1 = t1;
+            code3->operands.binop.op2 = t2;
+            add_Codes(1, code3);
+            return code1;
+        }
+        else if (!strcmp(op->type, "DIV"))
+        {
+            Operand t1 = new_tempvar();
+            Operand t2 = new_tempvar();
+            InterCode code1 = translate_Exp(Exp1, t1);
+            InterCode code2 = translate_Exp(Exp2, t2);
+            InterCode code3 = new_Code();
+            code3->kind = _DIV;
+            code3->operands.binop.result = place;
+            code3->operands.binop.op1 = t1;
+            code3->operands.binop.op2 = t2;
+            add_Codes(1, code3);
+            return code1;
+        }
+        else if (!strcmp(op->type, "AND"))
+        {
+            isCond = 1;
+        }
+        else if (!strcmp(op->type, "OR"))
+        {
+            isCond = 1;
+        }
+        else if (!strcmp(op->type, "RELOP"))
+        {
+            isCond = 1;
+        }
+        else if (!strcmp(op->type, "LB"))
+        { //数组操作
+        }
+        else if (!strcmp(op->type, "DOT"))
+        { //结构体操作
+        }
+    }
+    else if (Exp->leftchild != NULL && !strcmp(Exp->leftchild->type, "LP"))
+    {
+        return translate_Exp(Exp->leftchild->next, place);
+    }
+    else if (Exp->leftchild != NULL && !strcmp(Exp->leftchild->type, "MINUS"))
+    {
+        Operand t1 = new_tempvar();
+        InterCode code1 = translate_Exp(Exp1, t1);
+        InterCode code2 = new_Code();
+        code2->kind = _SUB;
+        code2->operands.binop.result = place;
+        code2->operands.binop.op1 = new_Const(0);
+        code2->operands.binop.op2 = t1;
+        add_Codes(1, code2);
+        return code1;
+    }
+    else if (Exp->leftchild != NULL && !strcmp(Exp->leftchild->type, "NOT"))
+    {
+        isCond = 1;
+    }
+    else if (Exp->leftchild != NULL && !strcmp(Exp->leftchild->type, "ID"))
+    {
+        if (Exp->leftchild->next != NULL)
+        {
+            tnode Args = Exp->leftchild->next->next;
+            if (Args->next == NULL) // ID LP RP
+            {
+                Operand func = new_Operand();
+                func->kind = FUNC;
+                func->operand.name = Exp->leftchild->content;
+                if (!strcmp(func->operand.name, "read"))
+                {
+                    InterCode code = new_Code();
+                    code->kind = _READ;
+                    code->operands.var = place;
+                    add_Codes(1, code);
+                    return code;
+                }
+                else
+                {
+                    InterCode code = new_Code();
+                    code->kind = _CALL;
+                    code->operands.assign.left = place;
+                    code->operands.assign.right = func;
+                    add_Codes(1, code);
+                    return code;
+                }
+            }    // if args
+            else // ID LP Args RP
+            {
+                Operand func = new_Operand();
+                func->kind = FUNC;
+                func->operand.name = Exp->leftchild->content;
+                ArgList arg_list = (ArgList)malloc(sizeof(ArgListStru));
+                arg_list->num = 0;
+                InterCode code1 = translate_Args(Args, arg_list);
+                InterCode code2, code3;
+                if (!strcmp(func->operand.name, "write"))
+                {
+                    code2 = new_Code();
+                    code2->kind = _WRITE;
+                    code2->operands.var = (arg_list->list)[0];
+                    add_Codes(1, code2);
+                }
+                else
+                {
+                    for (int i = 0; i < arg_list->num; i++)
+                    {
+                        code2 = new_Code();
+                        code2->kind = _ARG;
+                        code2->operands.var = (arg_list->list)[i];
+                        add_Codes(1, code2);
+                    }
+                    code3 = new_Code();
+                    code3->kind = _CALL;
+                    code3->operands.assign.left = place;
+                    code3->operands.assign.right = func;
+                    add_Codes(1, code3);
+                    return code1;
+                } // if write
+            }     // if have args
+        }         // if ID->next!=NULL
+    }
+    else if (Exp->leftchild != NULL && !strcmp(Exp->leftchild->type, "INT"))
+    {
+        Operand value = new_Const(Exp->leftchild->intval);
+        InterCode code = new_assign_Code(place, value);
+        add_Codes(1, code);
+        return code;
+    }
+    else if (Exp->leftchild != NULL && !strcmp(Exp->leftchild->type, "FLOAT"))
+    {
+        Operand value = new_Const((int)Exp->intval); // TODO:
+        InterCode code = new_assign_Code(place, value);
+        add_Codes(1, code);
+        return code;
+    }
+    else
+    {
+        printf("Error0 in translate_Exp()\n");
+    }
+    if (isCond)
+    {
+        Operand lable1 = new_lable();
+        Operand lable2 = new_lable();
+        InterCode code0 = new_assign_Code(place, new_Const(0));
+        add_Codes(1, code0);
+        InterCode code1 = translate_Cond(Exp, lable1, lable2);
+        add_Codes(2, new_lable_Code(lable1), new_assign_Code(place, new_Const(1)));
+        add_Codes(new_lable_Code(lable2));
+        return code0;
+    }
+    return new_Code();
+}
+InterCode translate_Cond(tnode Exp, Operand lable_true, Operand lable_false)
+{
+    if (Exp->leftchild == NULL)
+        return new_Code();
+    tnode relop = Exp->leftchild->next;
+    if (!strcmp(Exp->leftchild->type, "Exp"))
+    {
+        if (relop != NULL && !strcmp(relop->type, "RELOP"))
+        {
+            InterCode code3 = new_Code();
+            code3->kind = _IFGOTO;
+            code3->operands.jump.lable = lable_true;
+            code3->operands.jump.relop = relop->content;
+            Operand t1 = new_tempvar();
+            Operand t2 = new_tempvar();
+            InterCode code1 = translate_Exp(Exp->leftchild, t1);
+            InterCode code2 = translate_Exp(relop->next, t2);
+            code3->operands.jump.op1 = t1;
+            code3->operands.jump.op2 = t2;
+            add_Codes(2, code3, new_goto_Code(lable_false));
+            return code1;
+        }
+        else
+        {
+            printf("Error0 in translate_Cond()\n");
+        }
+    }
+    else if (!strcmp(Exp->leftchild->type, "NOT"))
+    {
+        return translate_Cond(Exp->leftchild, lable_false, lable_true);
+    }
+    else if (!strcmp(relop->content, "AND"))
+    {
+        Operand lable1 = new_lable();
+        InterCode code1 = translate_Cond(Exp->leftchild, lable1, lable_false);
+        add_Codes(1, new_lable_Code(lable1));
+        InterCode code2 = translate_Cond(relop->next, lable_true, lable_false);
+        return code1;
+    }
+    else if (!strcmp(relop->content, "OR"))
+    {
+        Operand lable1 = new_lable();
+        InterCode code1 = translate_Cond(Exp->leftchild, lable_true, lable1);
+        add_Codes(1, new_lable_Code(lable1));
+        InterCode code2 = translate_Cond(relop->next, lable_true, lable_false);
+        return code1;
+    }
+    else
+    {
+        Operand t1 = new_tempvar();
+        InterCode code1 = translate_Exp(Exp, t1);
+        InterCode code2 = new_Code();
+        char *relopchr = "!=";
+        code2->kind = _IFGOTO;
+        code2->operands.jump.lable = lable_true;
+        code2->operands.jump.relop = relopchr;
+        code2->operands.jump.op1 = t1;
+        code2->operands.jump.op2 = new_Const(0);
+        add_Codes(2, code2, new_goto_Code(lable_false));
+        return code1;
+    }
+}
+
+InterCode translate_Args(tnode Args, ArgList arg_list)
+{
+    tnode Exp1 = Args->leftchild;
+    if (Exp1 == NULL)
+    {
+        printf("Error0 in translate_Args()\n");
+        return new_Code();
+    }
+    if (Exp1->next == NULL) // Exp
+    {
+        Operand t1 = new_tempvar();
+        InterCode code1 = translate_Exp(Exp1, t1);
+        arg_list->list[arg_list->num] = t1;
+        arg_list->num++;
+        return code1;
+    }
+    else
+    {
+        Operand t1 = new_tempvar();
+        InterCode code1 = translate_Exp(Exp1, t1);
+        arg_list->list[arg_list->num] = t1;
+        arg_list->num++;
+        InterCode code2 = translate_Args(Exp1->next->next, arg_list);
+    }
+    return new_Code();
+}
+Operand get_Operand(tnode node)
+{
+    return NULL;
+}
+
 int Error = 0;
 void yyerror(char *msg)
 {
@@ -626,19 +1435,56 @@ int main(int argc, char **argv)
     rnum = 0;
     // structnum = 0;
 
+    //中间代码生成部分
+    tempvarnum = 0;
+    lablesnum = 0;
+    init_tempvar_lable();
+    //添加read、write函数
+    char *read = "read";
+    char *write = "write";
+    char *typeInt = "int";
+    functail->tag = 1;
+    functail->name = read;
+    functail->type = typeInt;
+    functail->rtype = typeInt;
+    functail->va_num = 0;
+    functail->instruct = 0;
+    functail->structno = 0;
+
+    func *new = (func *)malloc(sizeof(func));
+    functail->next = new;
+    functail = new;
+
+    functail->tag = 1;
+    functail->name = write;
+    functail->va_num = 1;
+    (functail->va_type)[0] = typeInt;
+    functail->instruct = 0;
+    functail->structno = 0;
+
+    new = (func *)malloc(sizeof(func));
+    functail->next = new;
+    functail = new;
+    //初始化中间代码列表
+    CodesHead = (InterCode)malloc(sizeof(InterCodeStru));
+    CodesTail = CodesHead;
+
     yyrestart(file);
     // yydebug = 1;
     yyparse();
+    fclose(file);
+
     if (Error)
         return 0;
     for (int i = 0; i < nodeNum; i++)
     {
-        if (IsChild[i] != 1)
+        if (IsChild[i] != 1 && !strcmp(nodeList[i]->type, "Program"))
         {
             Preorder(nodeList[i], 0);
+            InterCode codes = translate_Program(nodeList[i]);
+            print_Codes(codes);
         }
     }
-    fclose(file);
 
     return 0;
 }

@@ -31,15 +31,15 @@
 /* High-level definitions */
 Program:ExtDefList {$$=newTree("Program",nodeNum,1,$1);nodeList[nodeNum++]=$$;int useless=@1.first_line;}
     ;
-ExtDefList: {$$=newTree("ExtDefList",nodeNum,0,-1);nodeList[nodeNum++]=$$;nodeList[nodeNum++]=$$;}
-    |ExtDef ExtDefList {$$=newTree("ExtDefList",nodeNum,2,$1,$2);nodeList[nodeNum++]=$$;nodeList[nodeNum++]=$$;}
+ExtDefList: {$$=newTree("ExtDefList",nodeNum,0,-1);nodeList[nodeNum++]=$$;}
+    |ExtDef ExtDefList {$$=newTree("ExtDefList",nodeNum,2,$1,$2);nodeList[nodeNum++]=$$;}
     ;
 ExtDef: Specifier ExtDecList SEMI {
-    $$=newTree("ExtDef",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;nodeList[nodeNum++]=$$;
+    $$=newTree("ExtDef",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;
 }
-    |Specifier SEMI {$$=newTree("ExtDef",nodeNum,2,$1,$2);nodeList[nodeNum++]=$$;nodeList[nodeNum++]=$$;}
+    |Specifier SEMI {$$=newTree("ExtDef",nodeNum,2,$1,$2);nodeList[nodeNum++]=$$;}
     |Specifier FunDec CompSt {
-        $$=newTree("ExtDef",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;nodeList[nodeNum++]=$$;
+        $$=newTree("ExtDef",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;
         //Error8
         newfunc(1,$1);
         //Error4 检查函数是否重复定义

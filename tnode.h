@@ -146,4 +146,130 @@ extern int structno;                               //当前是第几个结构体
 // extern char **structname[100];
 // extern int structnum;
 
+/***********************中间代码生成**************************/
+typedef struct _OperandStru
+{
+    enum
+    {
+        VARIABLE, //变量
+        TEMPVAR,
+        LABLE,
+        CONSTANT,
+        ADDRESS, //&
+        VALUE,   //*
+        FUNC
+    } kind;
+    union
+    {
+        int tempvar; //标号
+        int lable;
+        int value;  //常量的值
+        char *name; //语义值 变量、函数名称
+    } operand;
+    int value; //常量的值
+} OperandStru, *Operand;
+typedef struct _InterCodeStru
+{
+    enum
+    {
+        _LABLE,
+        _FUNCTION,
+        _ASSIGN,
+        _ADD,
+        _SUB,
+        _MUL,
+        _DIV,
+        _GOTO,
+        _IFGOTO,
+        _RETURN,
+        _ARG,
+        _CALL,
+        _PARAM,
+        _READ,
+        _WRITE,
+        _NULL
+    } kind;
+    union
+    {
+        struct
+        {
+            Operand left, right;
+        } assign;
+        struct
+        {
+            Operand result, op1, op2;
+        } binop; //双目运算
+        struct
+        {
+            Operand lable, op1, op2;
+            char *relop;
+        } jump;
+        Operand var; //单操作数
+    } operands;
+    struct _InterCodeStru *prev, *next;
+} InterCodeStru, *InterCode;
+//函数参数列表
+typedef struct _ArgListStru
+{
+    int num;
+    Operand list[10];
+} ArgListStru, *ArgList;
+
+extern InterCode CodesHead, CodesTail; //双链表首尾
+//临时变量和标签
+#define MAX_NUM 100
+extern int tempvar[MAX_NUM];
+extern int tempvarnum; //下一个可用的临时变量下标
+extern int lables[MAX_NUM];
+extern int lablesnum;
+Operand new_tempvar();
+Operand new_lable();
+
+void init_tempvar_lable();
+//当Exp产生INT、ID、MINUS Exp时，获取已经声明过的operand
+Operand get_Operand(tnode Exp);
+//查看是否已经声明过同一个常数值的操作数
+Operand find_Const(int value);
+
+void init_InterCode();
+Operand new_Operand();
+Operand new_Variable(char *name);
+Operand new_Const(int value);
+InterCode new_Code();
+InterCode new_lable_Code(Operand lable);
+InterCode new_goto_Code(Operand lable);
+InterCode new_assign_Code(Operand left, Operand right);
+void print_Code(InterCode code);
+void print_Operand(Operand op);
+void print_Codes(InterCode codes);   //打印一段中间代码
+InterCode get_Tail(InterCode codes); //获取链表尾部
+InterCode add_Codes(int num, ...);   //在链表尾部连接另一条链表
+
+InterCode translate_Program(tnode Program);
+InterCode translate_ExtDefList(tnode ExtDefList);
+InterCode translate_ExtDef(tnode ExtDef);
+
+//变量、函数声明
+InterCode translate_FunDec(tnode FunDec);
+InterCode translate_VarList(tnode VarList);
+InterCode translate_ParamDec(tnode ParamDec);
+
+//作用域
+InterCode translate_CompSt(tnode CompSt);
+
+InterCode translate_StmtList(tnode StmList);
+InterCode translate_Stmt(tnode Stmt);
+
+//变量声明
+InterCode translate_DefList(tnode DefList);
+InterCode translate_Def(tnode Def);
+InterCode translate_DecList(tnode DecList);
+InterCode translate_Dec(tnode);
+
+//基本表达式
+InterCode translate_Exp(tnode, Operand place);
+InterCode translate_Cond(tnode, Operand lable_true, Operand lable_false);
+//函数参数
+InterCode translate_Args(tnode, ArgList arg_list);
+
 #endif
