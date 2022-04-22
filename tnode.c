@@ -58,6 +58,7 @@ Tree newTree(char *type, int num, int numOfChild, ...)
             memset(str, 0, strlen(yytext) + 2);
             strncpy(str, yytext, strlen(yytext) + 1);
             rootNode->content = str;
+            rootNode->ID_TYPE = str;
         }
     }
     return rootNode;
@@ -1470,7 +1471,7 @@ int main(int argc, char **argv)
     CodesTail = CodesHead;
 
     yyrestart(file);
-    // yydebug = 1;
+    yydebug = 1;
     yyparse();
     fclose(file);
 
@@ -1478,11 +1479,11 @@ int main(int argc, char **argv)
         return 0;
     for (int i = 0; i < nodeNum; i++)
     {
-        if (IsChild[i] != 1 && !strcmp(nodeList[i]->type, "Program"))
+        if (IsChild[i] != 1) //&& !strcmp(nodeList[i]->type, "Program")
         {
             Preorder(nodeList[i], 0);
-            InterCode codes = translate_Program(nodeList[i]);
-            print_Codes(codes);
+            // InterCode codes = translate_Program(nodeList[i]);
+            // print_Codes(codes);
         }
     }
 
