@@ -96,6 +96,7 @@ int checkmultifuncstr(char *);
 
 void newfunc(int num, ...);
 int findfunc(tnode val);   //检查函数是否已定义
+func *getfunc(tnode val);  //获取函数定义
 char *typefunc(tnode val); //获取函数参数类型
 int numfunc(tnode val);    //获取函数的形参个数
 

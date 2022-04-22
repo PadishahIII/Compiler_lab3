@@ -182,6 +182,7 @@ Exp: Exp ASSIGNOP Exp {
         $$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;
         //Error5
         if($1->numtype==NULL||$3->numtype==NULL){
+            printf("Error0\n");
             return;
         }
         if(strcmp($1->numtype,$3->numtype)){
@@ -246,6 +247,9 @@ Exp: Exp ASSIGNOP Exp {
         //Error2
         else if(!findfunc($1))
             printf("Error type 2 at line %d:undefined function '%s'.\n",yylineno,$1->content);
+        //TODO:获取函数返回值类型
+        func* temp = getfunc($1);
+        $$->numtype=temp->rtype;
     }
     |Exp LB Exp RB {
         $$=newTree("Exp",nodeNum,4,$1,$2,$3,$4);nodeList[nodeNum++]=$$;
@@ -281,7 +285,7 @@ Exp: Exp ASSIGNOP Exp {
     |INT {
         $$=newTree("Exp",nodeNum,1,$1);nodeList[nodeNum++]=$$;
         $$->numtype="int";
-        $$->fltval = $1->intval;
+        $$->intval = $1->intval;//TODO:
 }
     |FLOAT {
         $$=newTree("Exp",nodeNum,1,$1);nodeList[nodeNum++]=$$;

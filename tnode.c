@@ -359,6 +359,19 @@ int findfunc(tnode val)
     } // while
     return 0;
 }
+func *getfunc(tnode val)
+{
+    func *temp = funchead->next;
+    while (temp != NULL && temp->name != NULL && temp->tag == 1)
+    {
+        if (!strcmp(temp->name, val->content))
+        {
+            return temp;
+        } // if(!strcmp)
+        temp = temp->next;
+    } // while
+    return 0;
+}
 char *typefunc(tnode val)
 {
     func *temp = funchead->next;
