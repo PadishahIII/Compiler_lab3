@@ -64,10 +64,11 @@ typedef struct var_
 } var;
 extern var *varhead, *vartail;
 
-void newvar(int num, ...); //建立变量符号表项
-int findvar(tnode val);    //检查变量是否已定义
-char *typevar(tnode val);  //查询变量类型
-int checkleft(tnode val);  //赋值号左边是否合法
+void newvar(int num, ...);           //建立变量符号表项
+int findvar(tnode val);              //检查变量是否已定义
+int getvarstr(char *name, var *pos); //由变量名获取变量信息
+char *typevar(tnode val);            //查询变量类型
+int checkleft(tnode val);            //赋值号左边是否合法
 
 //函数符号表
 typedef struct func_
@@ -173,6 +174,7 @@ typedef struct _InterCodeStru
 {
     enum
     {
+        _USELESS, //避免让_LABLE为0
         _LABLE,
         _FUNCTION,
         _ASSIGN,
@@ -220,7 +222,9 @@ extern InterCode CodesHead, CodesTail; //双链表首尾
 //临时变量和标签
 #define MAX_NUM 100
 extern int tempvar[MAX_NUM];
-extern int tempvarnum; //下一个可用的临时变量下标
+extern int tempvarnum;         //下一个可用的临时变量下标
+extern var variables[MAX_NUM]; //变量与v1 v2 的映射
+extern var varinum;
 extern int lables[MAX_NUM];
 extern int lablesnum;
 Operand new_tempvar();
@@ -272,5 +276,7 @@ InterCode translate_Exp(tnode, Operand place);
 InterCode translate_Cond(tnode, Operand lable_true, Operand lable_false);
 //函数参数
 InterCode translate_Args(tnode, ArgList arg_list);
+
+char *getvarnamestr(char *); //传入变量名，返回v1 v2...，若该变量未定义则返回NULL
 
 #endif

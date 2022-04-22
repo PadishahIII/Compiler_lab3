@@ -1,6 +1,7 @@
 int main(int i)
 {
     int u;
-    u = 2;
-    u = read();
+    int v;
+    u = (2 + 3);
+    v = u;
 }

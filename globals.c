@@ -27,3 +27,5 @@ int tempvar[100];
 int tempvarnum; //下一个可用的临时变量下标
 int lables[100];
 int lablesnum;
+var variables[MAX_NUM];
+var varinum;

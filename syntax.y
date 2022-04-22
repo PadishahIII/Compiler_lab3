@@ -193,36 +193,36 @@ Exp: Exp ASSIGNOP Exp {
             printf("Error type 6 at line %d:The left-hand side of the assignment must be a variable.\n",yylineno);
         }
     }
-    |Exp AND Exp {$$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;}
-    |Exp OR Exp {$$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;}
-    |Exp RELOP Exp {$$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;}
+    |Exp AND Exp {$$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;$$->numtype = $1->numtype;}
+    |Exp OR Exp {$$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;$$->numtype = $1->numtype;}
+    |Exp RELOP Exp {$$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;$$->numtype = $1->numtype;}
     |Exp PLUS Exp {
-        $$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;
+        $$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;$$->numtype = $1->numtype;
         //Error7
-        if(strcmp($1->numtype,$3->numtype))
-            printf("Error type 7 at line %d:Type mismatched for operands.\n",yylineno);
+        //if(strcmp($1->numtype,$3->numtype))//TODO:
+         //   printf("Error type 7 at line %d:Type mismatched for operands.\n",yylineno);
     }
     |Exp MINUS Exp {
-        $$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;
+        $$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;$$->numtype = $1->numtype;
         //Error7
         if(strcmp($1->numtype,$3->numtype))
             printf("Error type 7 at line %d:Type mismatched for operands.\n",yylineno);
     }
     |Exp STAR Exp {
-        $$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;
+        $$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;$$->numtype = $1->numtype;
         //Error7
         if(strcmp($1->numtype,$3->numtype))
             printf("Error type 7 at line %d:Type mismatched for operands.\n",yylineno);
     }
     |Exp DIV Exp {
-        $$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;
+        $$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;$$->numtype = $1->numtype;
         //Error7
         if(strcmp($1->numtype,$3->numtype))
             printf("Error type 7 at line %d:Type mismatched for operands.\n",yylineno);
     }
-    |LP Exp RP {$$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;}
-    |MINUS Exp {$$=newTree("Exp",nodeNum,2,$1,$2);nodeList[nodeNum++]=$$;}
-    |NOT Exp {$$=newTree("Exp",nodeNum,2,$1,$2);nodeList[nodeNum++]=$$;}
+    |LP Exp RP {$$=newTree("Exp",nodeNum,3,$1,$2,$3);nodeList[nodeNum++]=$$;$$->numtype = $2->numtype;}
+    |MINUS Exp {$$=newTree("Exp",nodeNum,2,$1,$2);nodeList[nodeNum++]=$$;$$->numtype = $2->numtype;}
+    |NOT Exp {$$=newTree("Exp",nodeNum,2,$1,$2);nodeList[nodeNum++]=$$;$$->numtype = $2->numtype;}
     |ID LP Args RP {
         $$=newTree("Exp",nodeNum,4,$1,$2,$3,$4);nodeList[nodeNum++]=$$;
         //Error11

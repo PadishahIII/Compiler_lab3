@@ -1654,29 +1654,29 @@ yyreduce:
 
   case 44: /* Exp: Exp AND Exp  */
 #line 196 "syntax.y"
-                 {(yyval.type_tree)=newTree("Exp",nodeNum,3,(yyvsp[-2].type_tree),(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);}
+                 {(yyval.type_tree)=newTree("Exp",nodeNum,3,(yyvsp[-2].type_tree),(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);(yyval.type_tree)->numtype = (yyvsp[-2].type_tree)->numtype;}
 #line 1659 "syntax.tab.c"
     break;
 
   case 45: /* Exp: Exp OR Exp  */
 #line 197 "syntax.y"
-                {(yyval.type_tree)=newTree("Exp",nodeNum,3,(yyvsp[-2].type_tree),(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);}
+                {(yyval.type_tree)=newTree("Exp",nodeNum,3,(yyvsp[-2].type_tree),(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);(yyval.type_tree)->numtype = (yyvsp[-2].type_tree)->numtype;}
 #line 1665 "syntax.tab.c"
     break;
 
   case 46: /* Exp: Exp RELOP Exp  */
 #line 198 "syntax.y"
-                   {(yyval.type_tree)=newTree("Exp",nodeNum,3,(yyvsp[-2].type_tree),(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);}
+                   {(yyval.type_tree)=newTree("Exp",nodeNum,3,(yyvsp[-2].type_tree),(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);(yyval.type_tree)->numtype = (yyvsp[-2].type_tree)->numtype;}
 #line 1671 "syntax.tab.c"
     break;
 
   case 47: /* Exp: Exp PLUS Exp  */
 #line 199 "syntax.y"
                   {
-        (yyval.type_tree)=newTree("Exp",nodeNum,3,(yyvsp[-2].type_tree),(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);
+        (yyval.type_tree)=newTree("Exp",nodeNum,3,(yyvsp[-2].type_tree),(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);(yyval.type_tree)->numtype = (yyvsp[-2].type_tree)->numtype;
         //Error7
-        if(strcmp((yyvsp[-2].type_tree)->numtype,(yyvsp[0].type_tree)->numtype))
-            printf("Error type 7 at line %d:Type mismatched for operands.\n",yylineno);
+        //if(strcmp($1->numtype,$3->numtype))//TODO:
+         //   printf("Error type 7 at line %d:Type mismatched for operands.\n",yylineno);
     }
 #line 1682 "syntax.tab.c"
     break;
@@ -1684,7 +1684,7 @@ yyreduce:
   case 48: /* Exp: Exp MINUS Exp  */
 #line 205 "syntax.y"
                    {
-        (yyval.type_tree)=newTree("Exp",nodeNum,3,(yyvsp[-2].type_tree),(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);
+        (yyval.type_tree)=newTree("Exp",nodeNum,3,(yyvsp[-2].type_tree),(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);(yyval.type_tree)->numtype = (yyvsp[-2].type_tree)->numtype;
         //Error7
         if(strcmp((yyvsp[-2].type_tree)->numtype,(yyvsp[0].type_tree)->numtype))
             printf("Error type 7 at line %d:Type mismatched for operands.\n",yylineno);
@@ -1695,7 +1695,7 @@ yyreduce:
   case 49: /* Exp: Exp STAR Exp  */
 #line 211 "syntax.y"
                   {
-        (yyval.type_tree)=newTree("Exp",nodeNum,3,(yyvsp[-2].type_tree),(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);
+        (yyval.type_tree)=newTree("Exp",nodeNum,3,(yyvsp[-2].type_tree),(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);(yyval.type_tree)->numtype = (yyvsp[-2].type_tree)->numtype;
         //Error7
         if(strcmp((yyvsp[-2].type_tree)->numtype,(yyvsp[0].type_tree)->numtype))
             printf("Error type 7 at line %d:Type mismatched for operands.\n",yylineno);
@@ -1706,7 +1706,7 @@ yyreduce:
   case 50: /* Exp: Exp DIV Exp  */
 #line 217 "syntax.y"
                  {
-        (yyval.type_tree)=newTree("Exp",nodeNum,3,(yyvsp[-2].type_tree),(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);
+        (yyval.type_tree)=newTree("Exp",nodeNum,3,(yyvsp[-2].type_tree),(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);(yyval.type_tree)->numtype = (yyvsp[-2].type_tree)->numtype;
         //Error7
         if(strcmp((yyvsp[-2].type_tree)->numtype,(yyvsp[0].type_tree)->numtype))
             printf("Error type 7 at line %d:Type mismatched for operands.\n",yylineno);
@@ -1716,19 +1716,19 @@ yyreduce:
 
   case 51: /* Exp: LP Exp RP  */
 #line 223 "syntax.y"
-               {(yyval.type_tree)=newTree("Exp",nodeNum,3,(yyvsp[-2].type_tree),(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);}
+               {(yyval.type_tree)=newTree("Exp",nodeNum,3,(yyvsp[-2].type_tree),(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);(yyval.type_tree)->numtype = (yyvsp[-1].type_tree)->numtype;}
 #line 1721 "syntax.tab.c"
     break;
 
   case 52: /* Exp: MINUS Exp  */
 #line 224 "syntax.y"
-               {(yyval.type_tree)=newTree("Exp",nodeNum,2,(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);}
+               {(yyval.type_tree)=newTree("Exp",nodeNum,2,(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);(yyval.type_tree)->numtype = (yyvsp[0].type_tree)->numtype;}
 #line 1727 "syntax.tab.c"
     break;
 
   case 53: /* Exp: NOT Exp  */
 #line 225 "syntax.y"
-             {(yyval.type_tree)=newTree("Exp",nodeNum,2,(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);}
+             {(yyval.type_tree)=newTree("Exp",nodeNum,2,(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);(yyval.type_tree)->numtype = (yyvsp[0].type_tree)->numtype;}
 #line 1733 "syntax.tab.c"
     break;
 

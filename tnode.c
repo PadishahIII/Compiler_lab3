@@ -162,6 +162,24 @@ int findvar(tnode val)
     } // while
     return 0;
 }
+//由变量名获取变量信息,返回值为name在列表中的位置序号，pos为传出参数，指向变量信息
+int getvarstr(char *name, var *pos)
+{
+    var *temp = varhead->next;
+    int i = 0;
+    while (temp != NULL)
+    {
+        if (!strcmp(temp->name, name))
+        {
+            pos = temp;
+            return i;
+        } // if(!strcmp)
+        temp = temp->next;
+        i++;
+    } // while
+    return -1;
+}
+
 char *typevar(tnode val)
 {
     var *temp = varhead->next;
@@ -698,12 +716,12 @@ void print_Code(InterCode code)
     case _LABLE:
         printf("LABLE ");
         print_Operand(code->operands.var);
-        printf(":");
+        printf(" :");
         break;
     case _FUNCTION:
         printf("FUNCTION ");
         print_Operand(code->operands.var);
-        printf(":");
+        printf(" :");
         break;
     case _ASSIGN:
         print_Operand(code->operands.assign.left);
@@ -932,7 +950,13 @@ InterCode translate_ParamDec(tnode ParamDec)
         tnode VarDec = ParamDec->leftchild->next;
         InterCode code1 = new_Code();
         code1->kind = _PARAM;
-        code1->operands.var = new_Variable(VarDec->content);
+        char *varname = getvarnamestr(VarDec->content);
+        if (varname == NULL)
+        {
+            printf("Error- in translate_ParamDec() 1\n");
+            return NULL;
+        }
+        code1->operands.var = new_Variable(varname);
         // code1->operands.var = new_tempvar();
         add_Codes(1, code1); //叶节点加入
         return code1;
@@ -1008,7 +1032,7 @@ InterCode translate_Stmt(tnode Stmt)
             add_Codes(1, new_lable_Code(lable1));
             InterCode code2 = translate_Stmt(StmtChild);
             add_Codes(1, new_lable_Code(lable2));
-            if (Stmt->next == NULL) //没有ELSE
+            if (StmtChild->next == NULL) //没有ELSE
             {
                 return code1;
             }
@@ -1085,7 +1109,13 @@ InterCode translate_Dec(tnode Dec)
     if (VarDecChild->next != NULL)
     {
         // VarDec ASSIGNOP Exp
-        Operand vari = new_Variable(VarDecChild->content);
+        char *varname = getvarnamestr(VarDecChild->content);
+        if (varname == NULL)
+        {
+            printf("Error- in translate_Dec() 1\n");
+            return NULL;
+        }
+        Operand vari = new_Variable(varname);
         Operand t1 = new_tempvar();
         InterCode code1 = translate_Exp(VarDecChild->next->next, t1);
         InterCode code2 = new_assign_Code(vari, t1);
@@ -1110,10 +1140,16 @@ InterCode translate_Exp(tnode Exp, Operand place)
             // Exp1->ID
             if (Exp1->leftchild->next == NULL && !strcmp(Exp1->leftchild->type, "ID"))
             {
-                Operand vari = new_Variable(Exp1->content);
+                char *varname = getvarnamestr(Exp1->leftchild->content);
+                if (varname == NULL)
+                {
+                    printf("Error- in translate_Exp() 1\n");
+                    return NULL;
+                }
+                Operand vari = new_Variable(varname);
                 // Operand existOp = get_Operand(Exp2);
                 Operand t1 = new_tempvar();
-                InterCode code1 = translate_Exp(Exp2, t1);
+                InterCode code1 = translate_Exp(Exp2, t1); // PLUS
                 add_Codes(1, new_assign_Code(vari, t1));
                 if (place == NULL)
                 {
@@ -1284,6 +1320,12 @@ InterCode translate_Exp(tnode Exp, Operand place)
                 } // if write
             }     // if have args
         }         // if ID->next!=NULL
+        else      // Exp->ID
+        {
+            // TODO:u
+            place->kind = VARIABLE;
+            place->operand.name = getvarnamestr(Exp->leftchild->content);
+        }
     }
     else if (Exp->leftchild != NULL && !strcmp(Exp->leftchild->type, "INT"))
     {
@@ -1329,8 +1371,18 @@ InterCode translate_Cond(tnode Exp, Operand lable_true, Operand lable_false)
             code3->kind = _IFGOTO;
             code3->operands.jump.lable = lable_true;
             code3->operands.jump.relop = relop->content;
-            Operand t1 = new_tempvar();
-            Operand t2 = new_tempvar();
+            // Operand t1 = new_tempvar(); // TODO:u 查看Exp->ID 的content是否在变量列表中
+            Operand t1;
+            Operand t2;
+            // Exp->ID
+            if (!strcmp(Exp->leftchild->leftchild->type, "ID") && Exp->leftchild->next == NULL)
+                t1 = new_Variable(getvarnamestr(Exp->leftchild->leftchild->content));
+            else
+                t1 = new_tempvar();
+            if (!strcmp(relop->next->leftchild->type, "ID") && relop->next->leftchild->next == NULL)
+                t2 = new_Variable(getvarnamestr(relop->next->leftchild->content));
+            else
+                t2 = new_tempvar();
             InterCode code1 = translate_Exp(Exp->leftchild, t1);
             InterCode code2 = translate_Exp(relop->next, t2);
             code3->operands.jump.op1 = t1;
@@ -1410,6 +1462,26 @@ Operand get_Operand(tnode node)
     return NULL;
 }
 
+//传入变量名，返回v1 v2...，若该变量未定义则返回NULL
+char *getvarnamestr(char *name)
+{
+    var *pos = NULL;
+    int num = getvarstr(name, pos);
+    if (num < 0)
+    {
+        //该变量未定义
+        return NULL;
+    }
+    else
+    {
+        char *v = (char *)malloc(sizeof(10));
+        memset(v, 0, 10);
+        memcpy(v, "v", 1);
+        sprintf(v + 1, "%d", num);
+        return v;
+    }
+}
+
 int Error = 0;
 void yyerror(char *msg)
 {
@@ -1484,7 +1556,7 @@ int main(int argc, char **argv)
     CodesTail = CodesHead;
 
     yyrestart(file);
-    yydebug = 1;
+    // yydebug = 1;
     yyparse();
     fclose(file);
 
@@ -1495,8 +1567,8 @@ int main(int argc, char **argv)
         if (IsChild[i] != 1) //&& !strcmp(nodeList[i]->type, "Program")
         {
             Preorder(nodeList[i], 0);
-            // InterCode codes = translate_Program(nodeList[i]);
-            // print_Codes(codes);
+            InterCode codes = translate_Program(nodeList[i]);
+            print_Codes(codes);
         }
     }
 
