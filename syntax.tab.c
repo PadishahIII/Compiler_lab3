@@ -1779,8 +1779,8 @@ yyreduce:
                    {
         (yyval.type_tree)=newTree("Exp",nodeNum,4,(yyvsp[-3].type_tree),(yyvsp[-2].type_tree),(yyvsp[-1].type_tree),(yyvsp[0].type_tree));nodeList[nodeNum++]=(yyval.type_tree);
         //Error10
-        if(!findarray((yyvsp[-3].type_tree)))
-            printf("Error type 10 at line %d: '%s' is not an array\n",yylineno,(yyvsp[-3].type_tree)->content);
+        //if(!findarray($1))
+           // printf("Error type 10 at line %d: '%s' is not an array\n",yylineno,$1->content);
         //Error12
         if(strcmp((yyvsp[-1].type_tree)->numtype,"int"))
             printf("Error type 12 at line %d: '%f' is not an integer\n",yylineno,(yyvsp[-1].type_tree)->fltval);

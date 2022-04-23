@@ -210,6 +210,22 @@ int getvarstr(char *name, var *pos)
     } // while
     return -1;
 }
+int getarray(char *name, array *pos)
+{
+    array *temp = arrayhead->next;
+    int i = 0;
+    while (temp != NULL)
+    {
+        if (!strcmp(temp->name, name))
+        {
+            pos = temp;
+            return i;
+        }
+        temp = temp->next;
+        i++;
+    }
+    return -1;
+}
 int findvarstr(char *name)
 {
     var *temp = varhead->next;
@@ -1182,7 +1198,7 @@ InterCode translate_Exp(tnode Exp, Operand place)
         if (!strcmp(op->type, "ASSIGNOP"))
         {
             // Exp1->ID
-            if (Exp1->leftchild->next == NULL && !strcmp(Exp1->leftchild->type, "ID"))
+            if ((Exp1->leftchild->next == NULL && !strcmp(Exp1->leftchild->type, "ID")) || (Exp1->leftchild->next != NULL && !strcmp(Exp1->leftchild->type, "ID") && !strcmp(Exp1->leftchild->next->type, "LB")))
             {
                 char *varname = getvarnamestr(Exp1->leftchild->content);
                 if (varname == NULL)
@@ -1194,6 +1210,13 @@ InterCode translate_Exp(tnode Exp, Operand place)
                 // Operand existOp = get_Operand(Exp2);
                 Operand t1 = new_tempvar();
                 InterCode code1 = translate_Exp(Exp2, t1); // PLUS
+                if (Exp2->leftchild->next != NULL && (!strcmp(Exp2->leftchild->next->type, "LB") || !strcmp(Exp2->leftchild->next->next->type, "LB")))
+                {
+                    t1->kind = VALUE;
+                    char *chr = (char *)malloc(sizeof(10));
+                    sprintf(chr, "t%d", place->operand.tempvar);
+                    t1->operand.name = chr;
+                }
                 add_Codes(1, new_assign_Code(vari, t1));
                 if (place == NULL)
                 {
@@ -1277,6 +1300,26 @@ InterCode translate_Exp(tnode Exp, Operand place)
         }
         else if (!strcmp(op->type, "LB"))
         { //数组操作
+            Operand t1 = new_tempvar();
+            InterCode code1 = translate_Exp(op->next, t1);
+            char *arrayname = getarraystr(Exp1->leftchild->content);
+            if (arrayname == NULL)
+            {
+                printf("Error+ in translate_Exp() \n");
+                return NULL;
+            }
+            Operand vari = new_Variable(arrayname);
+            InterCode code2 = new_Code();
+            // place->kind = VALUE;
+            // char *chr = (char *)malloc(sizeof(10));
+            // sprintf(chr, "t%d", place->operand.tempvar);
+            // place->operand.name = chr;
+            code2->kind = _ADD;
+            code2->operands.binop.result = place;
+            code2->operands.binop.op1 = vari;
+            code2->operands.binop.op2 = t1;
+            add_Codes(1, code2);
+            return code1;
         }
         else if (!strcmp(op->type, "DOT"))
         { //结构体操作
@@ -1529,6 +1572,30 @@ char *getvarnamestr(char *name)
         memcpy(v, "v", 1);
         sprintf(v + 1, "%d", num);
         return v;
+    }
+}
+char *getarraystr(char *name)
+{
+    array *pos = NULL;
+    int num = getarray(name, pos);
+    if (num < 0)
+    {
+        //该变量未定义TODO:
+        array *res = (array *)malloc(sizeof(array));
+        res->instruct = 0;
+        res->structno = -1;
+        res->type = res->name = name;
+        arraytail->next = res;
+        arraytail = res;
+        return getarraystr(name);
+    }
+    else
+    {
+        char *a = (char *)malloc(sizeof(10));
+        memset(a, 0, 10);
+        memcpy(a, "a", 1);
+        sprintf(a + 1, "%d", num);
+        return a;
     }
 }
 

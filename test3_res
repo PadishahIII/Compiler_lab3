@@ -1,0 +1,16 @@
+FUNCTION main :
+PARAM v0
+t0 := #0
+v1 := t0
+LABLE lable0 :
+t1 := #10
+IF v1 < t1 GOTO lable0
+GOTO lable1
+LABLE lable1 :
+t4 := #1
+t2 := v1 + t4
+v1 := t2
+GOTO lable0
+LABLE lable2 :
+t5 := #0
+RETURN t5

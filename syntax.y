@@ -258,8 +258,8 @@ Exp: Exp ASSIGNOP Exp {
     |Exp LB Exp RB {
         $$=newTree("Exp",nodeNum,4,$1,$2,$3,$4);nodeList[nodeNum++]=$$;
         //Error10
-        if(!findarray($1))
-            printf("Error type 10 at line %d: '%s' is not an array\n",yylineno,$1->content);
+        //if(!findarray($1))
+           // printf("Error type 10 at line %d: '%s' is not an array\n",yylineno,$1->content);
         //Error12
         if(strcmp($3->numtype,"int"))
             printf("Error type 12 at line %d: '%f' is not an integer\n",yylineno,$3->fltval);

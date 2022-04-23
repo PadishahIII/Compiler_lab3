@@ -119,6 +119,8 @@ typedef struct array_
 extern array *arrayhead, *arraytail;
 void newarray(int num, ...);
 int findarray(tnode val);
+int getarray(char *name, array *pos);
+char *getarraystr(char *);
 char *typearray(tnode val);
 
 //结构体符号表
